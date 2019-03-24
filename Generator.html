@@ -1,29 +1,39 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     <title>TimeEqToken - Generator</title>
-</head>
-<body>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/rollups/hmac-sha256.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/components/enc-base64-min.js"></script>
+  </head>
+  <body>
     <h1>Token will be expired in: <span></span></h1>
-    <div id="result"></div> 
+    <div id="result"></div>
     <script>
-        class tokenGenerator{
-            tokenGenerator(_countDown, _result){
-                this.token = "";
-                this.message = "Stage1_test";
-                this.countDown = _countDown;
-                this.result = _result;
-            }
-            getToken(){
-
-            }
-            update(){
-
-            }
+      class tokenGenerator {
+        constructor(_countDown, _result) {
+          this.token = "";
+          this.message = "Stage1_test";
+          this.updatePeriod = 100000;
+          this.countDown = _countDown;
+          this.result = _result;
         }
+        genNewToken() {
+          let secret = Math.floor(+Date.now() / this.updatePeriod);
+          let hmac = CryptoJS.HmacSHA256(this.message, `${secret}`);
+          hmac = CryptoJS.enc.Base64.stringify(hmac);
+          this.token = `${this.message}.${hmac}`;
+        }
+        update() {}
+      }
+      let tokenGen = new tokenGenerator(
+        document.querySelector("h1 span"),
+        document.getElementById("result")
+      );
+      tokenGen.genNewToken();
+      console.log(tokenGen.token);
     </script>
-</body>
+  </body>
 </html>

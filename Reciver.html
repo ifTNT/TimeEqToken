@@ -5,8 +5,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>TimeEqToken - Reciver</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/rollups/hmac-sha256.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/components/enc-base64-min.js"></script>
 </head>
 <body>
     
 </body>
+    <script>
+      class tokenReceiver {
+        constructor(_countDown, _result) {
+          this.updatePeriod = 100000;
+          this.countDown = _countDown;
+          this.result = _result;
+        }
+        tokenValidation(msg) {
+          msg = msg.split(".");
+          let secret = Math.floor(+Date.now() / this.updatePeriod);
+          let hmac = CryptoJS.HmacSHA256(msg[0], `${secret}`);
+          hmac = CryptoJS.enc.Base64.stringify(hmac);
+          return msg[1]===hmac;
+        }
+        update() {}
+      }
+      let tokenRecv = new tokenReceiver();
+    </script>
+  </body>
 </html>
