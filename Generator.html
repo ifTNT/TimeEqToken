@@ -7,33 +7,51 @@
     <title>TimeEqToken - Generator</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/rollups/hmac-sha256.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/components/enc-base64-min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.qrcode/1.0/jquery.qrcode.min.js"></script>
   </head>
   <body>
-    <h1>Token will be expired in: <span></span></h1>
-    <div id="result"></div>
+    <h1>Token will be expired in: <span></span> sec</h1>
+    <div id="result">
+      <div class="qrcode"></div>
+      <span></span>
+    </div>
     <script>
       class tokenGenerator {
         constructor(_countDown, _result) {
           this.token = "";
           this.message = "Stage1_test";
-          this.updatePeriod = 100000;
+          this.updatePeriod = 10000;
           this.countDown = _countDown;
           this.result = _result;
+          this.lastgap = 0;
+
+          this.genNewToken();
+          setInterval(this.update.bind(this), 10);
         }
         genNewToken() {
           let secret = Math.floor(+Date.now() / this.updatePeriod);
           let hmac = CryptoJS.HmacSHA256(this.message, `${secret}`);
           hmac = CryptoJS.enc.Base64.stringify(hmac);
           this.token = `${this.message}.${hmac}`;
+
+          this.result.children(".qrcode").text("");
+          this.result.children("span").text(this.token);
+          this.result.children(".qrcode").qrcode(this.token);
         }
-        update() {}
+        update() {
+          let gap =
+            this.updatePeriod -
+            Date.now() +
+            Math.floor(+Date.now() / this.updatePeriod) * this.updatePeriod;
+          $(this.countDown).text(`${gap / 1000}`);
+          if (gap >= this.lastgap) {
+            this.genNewToken();
+          }
+          this.lastgap = gap;
+        }
       }
-      let tokenGen = new tokenGenerator(
-        document.querySelector("h1 span"),
-        document.getElementById("result")
-      );
-      tokenGen.genNewToken();
-      console.log(tokenGen.token);
+      let tokenGen = new tokenGenerator($("h1 span"), $("#result"));
     </script>
   </body>
 </html>
