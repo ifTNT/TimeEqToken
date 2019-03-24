@@ -9,6 +9,27 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/components/enc-base64-min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.qrcode/1.0/jquery.qrcode.min.js"></script>
+    <style>
+      body,
+      #result {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+      }
+      h1 {
+        font-size: 1.2rem;
+        margin-bottom: 1.5em;
+      }
+      h1 span {
+        display: inline-block;
+        width: 2em;
+        font-size: 1.5em;
+      }
+      #result span{
+          font-size: 10px;
+      }
+    </style>
   </head>
   <body>
     <h1>Token will be expired in: <span></span> sec</h1>
@@ -31,8 +52,11 @@
         }
         genNewToken() {
           let secret = Math.floor(+Date.now() / this.updatePeriod);
-          let serial = Math.floor(Math.random()*(1<<30));
-          let hmac = CryptoJS.HmacSHA256(`${this.message}#${serial}`, `${secret}`);
+          let serial = Math.floor(Math.random() * (1 << 30));
+          let hmac = CryptoJS.HmacSHA256(
+            `${this.message}#${serial}`,
+            `${secret}`
+          );
           hmac = CryptoJS.enc.Base64.stringify(hmac);
           this.token = `${this.message}#${serial}.${hmac}`;
 
@@ -45,7 +69,7 @@
             this.updatePeriod -
             Date.now() +
             Math.floor(+Date.now() / this.updatePeriod) * this.updatePeriod;
-          $(this.countDown).text(`${gap / 1000}`);
+          $(this.countDown).text(`${(gap / 1000).toFixed(2)}`);
           if (gap >= this.lastgap) {
             this.genNewToken();
           }
